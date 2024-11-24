@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: library
+      MYSQL_USER: libraryapi
+      MYSQL_PASSWORD: api123*
+      MYSQL_ROOT_PASSWORD: api123*
+      TZ: America/Sao_Paulo
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - library-network
+
+  library-api:
+    build:
+      context: .
+    image: library-api
+    container_name: library-api
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dados:/app/dados
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/library
+      SPRING_DATASOURCE_USERNAME: libraryapi
+      SPRING_DATASOURCE_PASSWORD: api123*
+      TZ: America/Sao_Paulo
+    networks:
+      - library-network
+
+volumes:
+  mysql-data:
+
+networks:
+  library-network:
